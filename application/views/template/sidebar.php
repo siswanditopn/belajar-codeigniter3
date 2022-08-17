@@ -12,35 +12,45 @@
 <!-- Divider -->
 <hr class="sidebar-divider">
 
-<!-- Heading -->
+<!-- QUERY MENU -->
+<?php
+  $role_id   = $this->session->userdata('role_id');
+  $queryMenu = "SELECT m.id, m.menu
+                FROM user_menu m
+                JOIN user_access_menu a
+                ON m.id = a.menu_id
+                WHERE a.role_id = $role_id
+                ORDER BY a.menu_id ASC
+                ";
+  $menu      = $this->db->query($queryMenu)->result_array();
+?>
+
+<!-- LOOPING MENU -->
+<?php foreach ($menu as $m) : ?>
 <div class="sidebar-heading">
-    Administrator
+  <?= $m['menu']; ?>
 </div>
 
-<!-- Nav Item - Dashboard -->
+<!-- SUB MENU -->
+<?php
+    $menuId       = $m['id'];
+    $querySubMenu = "SELECT *
+                    FROM user_sub_menu
+                    WHERE menu_id = $menuId
+                    AND is_active = 1
+                    ";
+    $subMenu      = $this->db->query($querySubMenu)->result_array();
+
+    foreach ($subMenu as $sm) :
+?>
 <li class="nav-item">
-    <a class="nav-link" href="index.html">
-        <i class="fas fa-fw fa-tachometer-alt"></i>
-        <span>Dashboard</span></a>
+    <a class="nav-link" href="<?= base_url($sm['url']); ?>">
+        <i class="<?= $sm['icon'] ?>"></i>
+        <span><?= $sm['title'] ?></span></a>
 </li>
-
-<!-- Divider -->
+<?php endforeach; ?>
 <hr class="sidebar-divider">
-
-<!-- Heading -->
-<div class="sidebar-heading">
-    User
-</div>
-
-<!-- Nav Item - Charts -->
-<li class="nav-item">
-    <a class="nav-link" href="charts.html">
-      <i class="fas fa-fw fa-id-card"></i>
-        <span>My Profile</span></a>
-</li>
-
-<!-- Divider -->
-<hr class="sidebar-divider">
+<?php endforeach; ?>
 
 <li class="nav-item">
     <a class="nav-link" href="#"  data-toggle="modal" data-target="#logoutModal">
